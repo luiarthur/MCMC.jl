@@ -8,3 +8,12 @@ BangBang = "198e06fe-97b7-11e9-32a5-e1d131e6ad66"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 ProgressBars = "49802e3a-d2f1-5c88-81d8-b72133a6f568"
 StatsFuns = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
