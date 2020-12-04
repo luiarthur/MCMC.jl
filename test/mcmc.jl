@@ -1,12 +1,12 @@
 @testset "mcmc.jl" begin
   @testset "subsetnamedtuple" begin
-    state = MCMCDev.make_init_state(MySimpleModel(10))
-    sample = MCMCDev.subsetnamedtuple(state, (:a, :b))
+    state = MCMC.make_init_state(MySimpleModel(10))
+    sample = MCMC.subsetnamedtuple(state, (:a, :b))
     @test Set(keys(sample)) == Set((:a, :b))
   end
 
   @testset "mcmc" begin
-    state = MCMCDev.make_init_state(MySimpleModel(10))
+    state = MCMC.make_init_state(MySimpleModel(10))
     nsamps = 1000
     nburn = 44
     thin = 33
@@ -22,7 +22,7 @@
 
   @testset "thin, nburn" begin
     model = MySimpleModel(10)
-    state = MCMCDev.make_init_state(model)
+    state = MCMC.make_init_state(model)
     nsamps = 1000
     nburn = 44
     thin = 33
@@ -54,7 +54,7 @@
 
   @testset "make_init_state" begin
     model = MySimpleModel(10)
-    init = MCMCDev.make_init_state(model)
+    init = MCMC.make_init_state(model)
 
     Random.seed!(1234)
     ref_chain = mcmc(model, init, 20).chain

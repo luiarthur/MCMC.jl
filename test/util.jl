@@ -1,9 +1,9 @@
 # A simple model
-struct MySimpleModel <: MCMCDev.Model
+struct MySimpleModel <: MCMC.Model
   K::Int
 end
-MCMCDev.make_init_state(m::MySimpleModel) = (a=0, b=0.0, c=zeros(m.K))
-function MCMCDev.update(::MySimpleModel, s::T) where T
+MCMC.make_init_state(m::MySimpleModel) = (a=0, b=0.0, c=zeros(m.K))
+function MCMC.update(::MySimpleModel, s::T) where T
   newstate = (a=s.a + 1,
               b=s.b + randn(),
               c=s.c .+ 1)
@@ -11,7 +11,7 @@ function MCMCDev.update(::MySimpleModel, s::T) where T
 end
 
 # Gaussian mixture model
-struct GMM{T<:AbstractVector{<:Real}, M<:Normal, S<:InverseGamma, W<:Dirichlet} <: MCMCDev.Model
+struct GMM{T<:AbstractVector{<:Real}, M<:Normal, S<:InverseGamma, W<:Dirichlet} <: MCMC.Model
   y::T
   K::Int
   mu::M
@@ -22,13 +22,13 @@ function GMM(y::AbstractVector{<:Real}, K::Int; mu=Normal(0, 1),
              sigmasq=InverseGamma(3, 2), eta=Dirichlet(K, 1/K))
   return GMM(y, K, mu, sigmasq, eta)
 end
-function MCMCDev.make_init_state(m::GMM)
+function MCMC.make_init_state(m::GMM)
   nobs = length(m.y)
   eta = rand(m.eta)
   return (mu=rand(m.mu, m.K), sigmasq=rand(m.sigmasq, m.K),
           eta=eta, lambda=rand(Categorical(eta), nobs))
 end
-function MCMCDev.update(m::GMM, s::T) where T
+function MCMC.update(m::GMM, s::T) where T
   s = setproperty!!(s, :mu, update_mu(m, s))
   s = setproperty!!(s, :sigmasq, update_sigmasq(m, s))
   s = setproperty!!(s, :eta, update_eta(m, s))

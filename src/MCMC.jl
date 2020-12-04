@@ -1,4 +1,4 @@
-module MCMCDev
+module MCMC
 
 using BangBang
 using Distributions

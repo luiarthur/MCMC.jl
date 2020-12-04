@@ -1,2 +1,2 @@
-# MCMCDev.jl
-MCMC dev in Julia
+# MCMC.jl
+MCMC in Julia.

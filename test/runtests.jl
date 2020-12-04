@@ -1,4 +1,4 @@
-using MCMCDev
+using MCMC
 using Test
 
 using BangBang

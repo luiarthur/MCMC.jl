@@ -24,7 +24,7 @@ end
 
 ### Arguments
 
-`model`: is a subtype of MCMCDev.Model.
+`model`: is a subtype of MCMC.Model.
 
 `initial_state`: is the initial state.
 
@@ -42,7 +42,7 @@ end
 """
 function mcmc(model::Model, initial_state::NamedTuple, nsamps::Int;
               nburn::Int=0, thin::Int=1, exclude::Vector{Symbol}=Symbol[],
-              callback=nothing)
+              callback=nothing, progress=true)
   # Assert that arguments are correctly specified.
   thin >= 1 || error("`thin` should be ≥ 1")
   nburn >= 0 || error("`thin` should be ≥ 0")
@@ -68,9 +68,10 @@ function mcmc(model::Model, initial_state::NamedTuple, nsamps::Int;
   # Additional metrics.
   metrics = Dict{Symbol, Any}()
 
-  for i in ProgressBar(1:niters)
+  iterator = progress ? ProgressBar(1:niters) : 1:niters
+  for i in iterator
     # Update current state.
-    state = update(model, state)  # User needs to imlement MCMCDev.update(s::typeof(s))
+    state = update(model, state)  # User needs to imlement MCMC.update(s::typeof(s))
 
     # Trim state to get a sample to save.
     sample = subsetnamedtuple(state, tracked_params)
