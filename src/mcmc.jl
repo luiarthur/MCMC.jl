@@ -1,14 +1,41 @@
+abstract type Model end
+
 """
 Needs to be overloaded.
 """
-function update end
+function update(model::Model, s::T) where T end
 
-function trimstate(state, tracked_params)
-  vs = map(v -> state[v], tracked_params)
-  return NamedTuple{tracked_params}(vs)
+"""
+Subset a named tuple
+"""
+function subsetnamedtuple(state::NamedTuple, names)
+  vs = map(v -> state[v], names)
+  return NamedTuple{names}(vs)
 end
 
-function mcmc(initial_state::NamedTuple, nsamps::Int;
+"""
+    mcmc(model::Model, initial_state::NamedTuple, nsamps::Int; nburn::Int=0,
+         thin::Int=1, exclude::Vector{Symbol}=[], callback=nothing)
+
+### Arguments
+
+`model`: is a subtype of MCMCDev.Model.
+
+`initial_state`: is the initial state.
+
+`nsamps`: Number of samples to return.
+
+`nburn`: Number of burn-in samples to discard at the beginning.
+
+`thin`: Factor by which to thin samples.
+
+`exclude`: Parameters to exclude from final chain.
+
+`callback`: Callback function of the form `callback(chain, state, sample, i, metrics)`.
+
+**Return**: `(chain::Vector{<:NamedTuple}, metrics::Dict{Symbol, Any})` where `chain` is a Vector of `NamedTuples` of length `nsamps` and `metrics` is additional metrics that would be generated through `callback` if provided.
+"""
+function mcmc(model::Model, initial_state::NamedTuple, nsamps::Int;
               nburn::Int=0, thin::Int=1, exclude::Vector{Symbol}=[],
               callback=nothing)
   # Assert that arguments are correctly specified.
@@ -31,20 +58,20 @@ function mcmc(initial_state::NamedTuple, nsamps::Int;
   state = deepcopy(initial_state)
 
   # Preallocate output.
-  chain = [deepcopy(trimstate(state, tracked_params)) for _ in 1:nsamps]
+  chain = [deepcopy(subsetnamedtuple(state, tracked_params)) for _ in 1:nsamps]
 
-  # TODO: Implement metrics.
-  metrics = ()
+  # Additional metrics.
+  metrics = Dict{Symbol, Any}()
 
   for i in ProgressBar(1:niters)
     # Update current state.
-    state = update(state)  # User needs to imlement MCMCDev.update(s::typeof(s))
+    state = update(model, state)  # User needs to imlement MCMCDev.update(s::typeof(s))
 
     # Trim state to get a sample to save.
-    sample = trimstate(state, tracked_params)
+    sample = subsetnamedtuple(state, tracked_params)
 
-    # TODO: implement callback
-    callback === nothing || (_ = nothing)
+    # Callback function.
+    callback === nothing || callback(chain, state, sample, i, metrics)
 
     # Save current state.
     (i > nburn) && ((i - nburn) % thin == 0) && setindex!!(chain, sample, idx += 1)
