@@ -6,6 +6,11 @@ Needs to be overloaded.
 function update(model::Model, s::T) where T end
 
 """
+Needs to be overloaded.
+"""
+function make_init_state(model::Model) end
+
+"""
 Subset a named tuple
 """
 function subsetnamedtuple(state::NamedTuple, names)
@@ -36,7 +41,7 @@ end
 **Return**: `(chain::Vector{<:NamedTuple}, metrics::Dict{Symbol, Any})` where `chain` is a Vector of `NamedTuples` of length `nsamps` and `metrics` is additional metrics that would be generated through `callback` if provided.
 """
 function mcmc(model::Model, initial_state::NamedTuple, nsamps::Int;
-              nburn::Int=0, thin::Int=1, exclude::Vector{Symbol}=[],
+              nburn::Int=0, thin::Int=1, exclude::Vector{Symbol}=Symbol[],
               callback=nothing)
   # Assert that arguments are correctly specified.
   thin >= 1 || error("`thin` should be ≥ 1")
@@ -78,4 +83,8 @@ function mcmc(model::Model, initial_state::NamedTuple, nsamps::Int;
   end
 
   return (chain=chain, metrics=metrics)
+end
+
+function mcmc(model::Model, nsamps::Int; kwargs...)
+  return mcmc(model, make_init_state(model), nsamps; kwargs...)
 end
