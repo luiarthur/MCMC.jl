@@ -1,14 +1,13 @@
-abstract type Model end
-
 """
 Needs to be overloaded.
 """
-function update(model::Model, s::T) where T end
+function update(model::Model, s::T) where {T} end
 
 """
 Needs to be overloaded.
 """
 function make_init_state(model::Model) end
+make_init_state(gibbs::Gibbs) = make_init_state(gibbs.model)
 
 """
 Subset a named tuple
@@ -19,16 +18,16 @@ function subsetnamedtuple(state::NamedTuple, names)
 end
 
 """
-    mcmc(model::Model, initial_state::NamedTuple, nsamps::Int; nburn::Int=0,
+    mcmc(model::Model, nsamps::Int; init::Union{NamedTuple, Nothing}, nburn::Int=0,
          thin::Int=1, exclude::Vector{Symbol}=[], callback=nothing)
 
 ### Arguments
 
 `model`: is a subtype of MCMC.Model.
 
-`initial_state`: is the initial state.
-
 `nsamps`: Number of samples to return.
+
+`init`: is the initial state.
 
 `nburn`: Number of burn-in samples to discard at the beginning.
 
@@ -40,9 +39,12 @@ end
 
 **Return**: `(chain::Vector{<:NamedTuple}, metrics::Dict{Symbol, Any})` where `chain` is a Vector of `NamedTuples` of length `nsamps` and `metrics` is additional metrics that would be generated through `callback` if provided.
 """
-function mcmc(model::Model, initial_state::NamedTuple, nsamps::Int;
+function mcmc(model::Union{Model,Gibbs}, nsamps::Int; init::Union{Nothing, NamedTuple}=nothing,
               nburn::Int=0, thin::Int=1, exclude::Vector{Symbol}=Symbol[],
-              callback=nothing, progress=true)
+              callback=nothing, progress=true, kwargs...)
+  # Create intial state if needed.
+  init === nothing && (init = make_init_state(model))
+
   # Assert that arguments are correctly specified.
   thin >= 1 || error("`thin` should be ≥ 1")
   nburn >= 0 || error("`thin` should be ≥ 0")
@@ -54,13 +56,13 @@ function mcmc(model::Model, initial_state::NamedTuple, nsamps::Int;
   idx = 0
 
   # All parameters
-  allparams = keys(initial_state)
+  allparams = keys(init)
 
   # Tracked parameters
   tracked_params = Tuple(filter(s -> !(s in exclude), allparams))
 
   # Current state
-  state = deepcopy(initial_state)
+  state = deepcopy(init)
 
   # Preallocate output.
   chain = [deepcopy(subsetnamedtuple(state, tracked_params)) for _ in 1:nsamps]
@@ -71,7 +73,8 @@ function mcmc(model::Model, initial_state::NamedTuple, nsamps::Int;
   iterator = progress ? ProgressBar(1:niters) : 1:niters
   for i in iterator
     # Update current state.
-    state = update(model, state)  # User needs to imlement MCMC.update(s::typeof(s))
+    # NOTE: User needs to imlement MCMC.update(s::typeof(s))
+    state = update(model, state; kwargs...)
 
     # Trim state to get a sample to save.
     sample = subsetnamedtuple(state, tracked_params)
@@ -84,8 +87,4 @@ function mcmc(model::Model, initial_state::NamedTuple, nsamps::Int;
   end
 
   return (chain=chain, metrics=metrics)
-end
-
-function mcmc(model::Model, nsamps::Int; kwargs...)
-  return mcmc(model, make_init_state(model), nsamps; kwargs...)
 end

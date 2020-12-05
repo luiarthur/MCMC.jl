@@ -10,7 +10,7 @@
     nsamps = 1000
     nburn = 44
     thin = 33
-    output = mcmc(MySimpleModel(10), state, nsamps, nburn=nburn, thin=thin)
+    output = mcmc(MySimpleModel(10), nsamps, init=state, nburn=nburn, thin=thin)
     chain = output.chain
 
     @test length(chain) == nsamps
@@ -28,19 +28,18 @@
     thin = 33
 
     Random.seed!(1234)
-    ref_chain = mcmc(model, state, nsamps * thin + nburn,
-                     exclude=[:c]).chain
+    ref_chain = mcmc(model, nsamps * thin + nburn, init=state, exclude=[:c]).chain
 
     Random.seed!(1234)
-    thinned_chain = mcmc(model, state, nsamps, thin=thin,
+    thinned_chain = mcmc(model, nsamps, init=state, thin=thin,
                          exclude=[:c]).chain
 
     Random.seed!(1234)
-    burned_chain = mcmc(model, state, nsamps, nburn=nburn,
+    burned_chain = mcmc(model, nsamps, init=state, nburn=nburn,
                         exclude=[:c]).chain
 
     Random.seed!(1234)
-    thinned_and_burned_chain = mcmc(model, state, nsamps, nburn=nburn,
+    thinned_and_burned_chain = mcmc(model, nsamps, init=state, nburn=nburn,
                                     thin=thin, exclude=[:c]).chain
 
     @test length(ref_chain) == nsamps * thin + nburn
@@ -57,12 +56,33 @@
     init = MCMC.make_init_state(model)
 
     Random.seed!(1234)
-    ref_chain = mcmc(model, init, 20).chain
+    ref_chain = mcmc(model, 20, init=init).chain
 
     Random.seed!(1234)
     uninitialized_chain = mcmc(model, 20).chain
 
     @test all(ref_chain .== uninitialized_chain)
+  end
+
+  @testset "gibbs" begin
+    spl = Gibbs(M1(),
+                Conditional(:mu, (m, s) -> s.mu + 1),
+                Conditional(:sigma, (m, s) -> s.sigma + 2))
+    nsamps = 1000
+    chain = mcmc(spl, nsamps).chain
+    @test chain[end].mu == nsamps
+    @test chain[end].sigma == nsamps * 2
+  end
+
+  @testset "gibbs multi-step" begin
+    spl = Gibbs(M2(),
+                Conditional((:mu, :sigma), (m, s) -> (mu = s.mu + 1, sigma = s.sigma + 2)),
+                Conditional(:eta, (m, s) -> s.eta .- 1))
+    nsamps = 1000
+    chain = mcmc(spl, nsamps).chain
+    @test chain[end].mu == nsamps
+    @test chain[end].sigma == nsamps * 2
+    @test all(chain[end].eta .== -nsamps)
   end
 
   # TODO: Add tests for callback, metrics.
