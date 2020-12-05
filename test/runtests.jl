@@ -13,4 +13,5 @@ import Random
   include("mcmc.jl")
   include("misc.jl")
   include("models/gmm.jl")
+  include("metrics.jl")
 end

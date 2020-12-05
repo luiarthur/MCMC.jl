@@ -17,5 +17,6 @@ include("metrics.jl")
 
 export mcmc, wsample_logprob, Gibbs, Conditional
 export gaussian_random_walk_metropolis, gaussian_random_walk_metropolis_base
+export dic, deviance
 
 end # module
