@@ -7,8 +7,8 @@ using StatsFuns
 import Random
 
 @testset "MCMCDec" begin
-  include("util.jl")
+  include("models/simple_model.jl")
   include("mcmc.jl")
   include("misc.jl")
-  include("complex_models/gmm.jl")
+  include("models/gmm.jl")
 end
