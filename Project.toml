@@ -1,7 +1,7 @@
 name = "MCMC"
 uuid = "c4263776-7399-408b-84de-0a68bf597892"
 authors = ["Arthur Lui <luiarthur@gmail.com>"]
-version = "0.2.5"
+version = "0.2.6"
 
 [deps]
 BangBang = "198e06fe-97b7-11e9-32a5-e1d131e6ad66"
