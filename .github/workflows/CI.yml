@@ -1,3 +1,25 @@
+# name: CI
+# 
+# on: [push, pull_request]
+# 
+# jobs:
+#   test:
+#     runs-on: ${{ matrix.os }}
+#     continue-on-error: ${{ matrix.version == 'nightly' }}
+#     strategy:
+#       matrix:
+#         version: ['1.0', '1', 'nightly']
+#         arch: [x86]
+#         os: [ubuntu-latest]
+#     steps:
+#       - uses: actions/checkout@v1
+#       - uses: julia-actions/setup-julia@latest
+#         with:
+#           version: ${{ matrix.version }}
+#           arch: ${{ matrix.arch }}
+#       - uses: julia-actions/julia-buildpkg@latest
+#       - uses: julia-actions/julia-runtest@latest
+# 
 name: CI
 
 on: [push, pull_request]
@@ -8,14 +30,12 @@ jobs:
     continue-on-error: ${{ matrix.version == 'nightly' }}
     strategy:
       matrix:
-        version: ['1.0', '1', 'nightly']
-        arch: [x86]
-        os: [ubuntu-latest]
+        julia-version: ['1.0', '1', 'nightly']
+        julia-arch: x86
+        os: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v1.0.0
       - uses: julia-actions/setup-julia@latest
         with:
-          version: ${{ matrix.version }}
-          arch: ${{ matrix.arch }}
-      - uses: julia-actions/julia-buildpkg@latest
-      - uses: julia-actions/julia-runtest@latest
+          version: ${{ matrix.julia-version }}
+      - uses: julia-actions/julia-runtest@master
