@@ -32,14 +32,6 @@ function RWM(name::Symbol, logprob::Function, proposal_sd::Real)
   end
   return RandomWalkMetropolis(name, stepper, proposal_sd)
 end
-function RWM(names::NTuple, logprob::Function, proposal_sd::Real)
-  function stepper(model::Model, state::S) where S
-    _logprob(x) = logprob(model, state, x)
-    return map(name -> gaussian_random_walk_metropolis(state[name], _logprob, proposal_sd),
-               names)
-  end
-  return RandomWalkMetropolis(names, stepper, proposal_sd)
-end
 
 # Adaptive Random Walk Metropolis.
 
