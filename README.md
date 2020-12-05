@@ -1,5 +1,8 @@
 # MCMC.jl
 MCMC in Julia.
 
-[![Build Status](https://github.com/luiarthur/MCMC.jl/workflows/CI/badge.svg)](https://github.com/luiarthur/MCMC.jl/actions)
-[![Codecov](https://codecov.io/gh/luiarthur/MCMC.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/luiarthur/MCMC.jl)
+[![Build Status][ci-img]](https://github.com/luiarthur/MCMC.jl/actions)
+[![Codecov][codecov-img]](https://codecov.io/gh/luiarthur/MCMC.jl)
+
+[ci-img]: https://github.com/luiarthur/MCMC.jl/workflows/CI/badge.svg
+[codecov-img]: https://img.shields.io/codecov/c/github/luiarthur/MCMC.jl/master.svg?label=codecov
