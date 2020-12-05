@@ -5,9 +5,10 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.version == 'nightly' }}
     strategy:
       matrix:
-        version: ['1.0', '1']
+        version: ['1.0', '1', 'nightly']
         arch: [x86]
         os: [ubuntu-latest]
     steps:
