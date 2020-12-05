@@ -7,6 +7,7 @@ using StatsFuns
 import Random
 
 @testset "MCMC" begin
+  include("metropolis.jl")
   include("models/simple_model.jl")
   include("models/gibbs_models.jl")
   include("mcmc.jl")
