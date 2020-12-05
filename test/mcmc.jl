@@ -65,18 +65,27 @@
   end
 
   @testset "gibbs" begin
+    Random.seed!(0)
     spl = Gibbs(M1(),
                 Conditional(:mu, (m, s) -> s.mu + 1),
                 Conditional(:sigma, (m, s) -> s.sigma + 2))
-    nsamps = 1000
+    nsamps = 50000
     chain = mcmc(spl, nsamps).chain
     @test chain[end].mu == nsamps
     @test chain[end].sigma == nsamps * 2
+
+    spl = Gibbs(M1(),
+                Conditional(:mu, (m, s) -> s.mu + 1),
+                Conditional(:sigma, (m, s) -> randn()))
+    chain = mcmc(spl, nsamps, init=(mu=0.0, sigma=0.0)).chain
+    @test chain[end].mu == nsamps
+    @test isapprox(std(getindex.(chain, :sigma)), 1, atol=1e-2)
   end
 
   @testset "gibbs multi-step" begin
     spl = Gibbs(M2(),
-                Conditional((:mu, :sigma), (m, s) -> (mu = s.mu + 1, sigma = s.sigma + 2)),
+                Conditional((:mu, :sigma),
+                            (m, s) -> (mu = s.mu + 1, sigma = s.sigma + 2)),
                 Conditional(:eta, (m, s) -> s.eta .- 1))
     nsamps = 1000
     chain = mcmc(spl, nsamps).chain
@@ -85,5 +94,5 @@
     @test all(chain[end].eta .== -nsamps)
   end
 
-  # TODO: Add tests for callback, metrics.
+  # TODO: Add tests for callback.
 end

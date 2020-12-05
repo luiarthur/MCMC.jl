@@ -9,3 +9,5 @@ end
 function wsample_logprob(logprobs::AbstractVector{<:Real}, n::Int)
   return [wsample_logprob(logprobs) for _ in 1:n]
 end
+
+Random.rand(rng::Random.AbstractRNG, d::Array{T}) where {T <: Distribution} = rand.(d)

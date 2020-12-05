@@ -1,5 +1,3 @@
-const OneOrMoreSymbols = Union{Symbol, NTuple{N, Symbol} where N}
-
 struct Conditional{S <: OneOrMoreSymbols, F}
   name::S
   stepper::F
@@ -17,10 +15,11 @@ function update(gibbs::Gibbs, state::S; kwargs...) where S
   # - fix parameters.
   for s in gibbs.algs
     if s.name isa NTuple
-      newstate = s.stepper(gibbs.model, state)
-      state = setproperties!!(state, newstate)
+      newvalues = s.stepper(gibbs.model, state)
+      state = setproperties!!(state, newvalues)
     else
-      state = setproperty!!(state, s.name, s.stepper(gibbs.model, state))
+      newvalue = s.stepper(gibbs.model, state)
+      state = setproperty!!(state, s.name, newvalue)
     end
   end
   return state
