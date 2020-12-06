@@ -19,7 +19,7 @@ end
 
 `proposal::Union{Normal,MvNormal}`  proposal distribution
 """
-struct _StaticRWM{S<:OneOrMoreSymbols, F<:Function, T<:StaticRWM}
+struct _RWM{S<:OneOrMoreSymbols, F<:Function, T<:StaticRWM}
   name::S
   stepper::F
   rwm::T
@@ -28,14 +28,15 @@ end
 """
 `bijector`: This should be the transformtion to the real space. e.g. if X has positive support, the Log transform should be supplied.
 """
-function RWM(name::Symbol, logprob::Function, proposal::Union{Normal, MvNormal};
-             bijector=nothing)
-  srwm = StaticRWM(proposal)
-
+function RWM(name::Symbol, logprob::Function, met::Metropolis; bijector=nothing)
   if bijector === nothing
-    if proposal isa Normal
-      bijector = Bijectors.Identity{0}()
-    else
+    if met isa StaticRWM 
+      if met.proposal isa Normal
+        bijector = Bijectors.Identity{0}()
+      else
+        bijector = Bijectors.Identity{1}()
+      end
+    elseif met isa MvAdaptiveRWM
       bijector = Bijectors.Identity{1}()
     end
   end
@@ -46,13 +47,20 @@ function RWM(name::Symbol, logprob::Function, proposal::Union{Normal, MvNormal};
       x, labsdj = forward(invb, real_x)
       return logprob(model, state, x) + labsdj
     end
-    return invb(update(srwm, bijector(state[name]), _logprob))
+    return invb(update(met, bijector(state[name]), _logprob))
   end
 
-  return _StaticRWM(name, stepper, srwm)
+  return _RWM(name, stepper, met)
+end
+
+function RWM(name::Symbol, logprob::Function, proposal::Union{Normal, MvNormal};
+             bijector=nothing)
+  srwm = StaticRWM(proposal)
+  return RWM(name, logprob, srwm, bijector=bijector)
 end
 
 
+include("metropolis_mvadaptive.jl")
 
 # TOD
 # - [ ] Multivariate ARWM (MvARWM)
