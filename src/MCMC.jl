@@ -5,6 +5,7 @@ using Distributions
 using ProgressBars
 using StatsFuns
 import Random
+using Bijectors
 
 abstract type Model end
 abstract type InferenceAlgorithm end

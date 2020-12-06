@@ -24,17 +24,36 @@ struct _StaticRWM{S<:OneOrMoreSymbols, F<:Function, T<:StaticRWM}
   stepper::F
   rwm::T
 end
-function RWM(name::Symbol, logprob::Function, proposal::Union{Normal, MvNormal})
+
+"""
+`bijector`: This should be the transformtion to the real space. e.g. if X has positive support, the Log transform should be supplied.
+"""
+function RWM(name::Symbol, logprob::Function, proposal::Union{Normal, MvNormal};
+             bijector=nothing)
   srwm = StaticRWM(proposal)
-  function stepper(model::Model, state::S) where S
-    _logprob(x) = logprob(model, state, x)
-    return update(srwm, state[name], _logprob)
+
+  if bijector === nothing
+    if proposal isa Normal
+      bijector = Bijectors.Identity{0}()
+    else
+      bijector = Bijectors.Identity{1}()
+    end
   end
+  invb = inv(bijector)
+
+  function stepper(model::Model, state::S) where S
+    function _logprob(real_x)
+      x, labsdj = forward(invb, real_x)
+      return logprob(model, state, x) + labsdj
+    end
+    return invb(update(srwm, bijector(state[name]), _logprob))
+  end
+
   return _StaticRWM(name, stepper, srwm)
 end
 
 
 
-# TODO
+# TOD
 # - [ ] Multivariate ARWM (MvARWM)
 # - [ ] Adaptive RWM (ARWM)

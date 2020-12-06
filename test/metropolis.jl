@@ -72,4 +72,25 @@
     @test isapprox(mean(eta), mean(d3), atol=0.2)
     @test isapprox(std(eta), LinearAlgebra.diag(d3.Σ), atol=0.2)
   end
+
+  @testset "RWM bijector" begin
+    d = Beta(2, 8)
+
+    spl = Gibbs(M4(),
+                RWM(:theta, (m, s, x) -> logpdf(d, x), Normal(0, 1),
+                    bijector=Bijectors.Logit(0, 1)),
+                RWM(:mu, (m, s, x) -> logpdf(Normal(), x), Normal(0, 1)))
+
+    nsamps = 50000
+    Random.seed!(1)
+    chain = mcmc(spl, nsamps, discard=10000, thin=2).chain
+    theta = getindex.(chain, :theta)
+
+    for (param, d) in zip([theta], [d])
+      @test isapprox(mean(param), mean(d), atol=1e-2)
+      @test isapprox(std(param), std(d), atol=1e-2)
+      @test isapprox(quantile(param, 0.025), quantile(d, .025), atol=1e-2)
+      @test isapprox(quantile(param, 0.975), quantile(d, .975), atol=1e-2)
+    end
+  end
 end

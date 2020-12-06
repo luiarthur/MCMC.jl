@@ -2,6 +2,7 @@ using MCMC
 using Test
 
 using BangBang
+using Bijectors
 using Distributions
 using StatsFuns
 import Random
