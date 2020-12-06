@@ -35,7 +35,7 @@ end
 
 `exclude`: Parameters to exclude from final chain.
 
-`callback`: Callback function of the form `callback(chain, state, sample, i, metrics)`.
+`callback`: Callback function of the form `callback(chain, state, sample, i, metrics, iterator)`.
 
 **Return**: `(chain::Vector{<:NamedTuple}, metrics::Dict{Symbol, Any})` where `chain` is a Vector of `NamedTuples` of length `nsamps` and `metrics` is additional metrics that would be generated through `callback` if provided.
 """
@@ -80,7 +80,7 @@ function mcmc(model::Union{Model,Gibbs}, nsamps::Int; init::Union{Nothing, Named
     sample = subsetnamedtuple(state, tracked_params)
 
     # Callback function.
-    callback === nothing || callback(chain, state, sample, i, metrics)
+    callback === nothing || callback(chain, state, sample, i, metrics, iterator)
 
     # Save current state.
     (i > nburn) && ((i - nburn) % thin == 0) && setindex!!(chain, sample, idx += 1)
