@@ -28,6 +28,7 @@ function _update(rng::Random.AbstractRNG, rwm::MvAdaptiveRWM, curr::AbstractVect
   else
     5.6644 * rwm.sample_cov / rwm.d
   end
+  proposal_cov .= Matrix(LinearAlgebra.Symmetric(proposal_cov))
 
   return _update(rng, StaticRWM(MvNormal(proposal_cov)), curr, logprob)
 end
