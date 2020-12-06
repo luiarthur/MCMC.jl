@@ -12,13 +12,13 @@ const OneOrMoreSymbols = Union{Symbol, NTuple{N, Symbol} where N}
 
 abstract type Metropolis end
 # Implement _update(::Random.AbstractRNG, ::Metropolis, curr::Real, logprob::Function)
-function _update(met::Metropolis, curr::Real, logprob::Function)
+function _update(met::Metropolis, curr::T, logprob::Function) where T
   return _update(Random.GLOBAL_RNG, met, curr, logprob)
 end
-function update(rng::Random.AbstractRNG, met::Metropolis, curr::Real, logprob::Function)
+function update(rng::Random.AbstractRNG, met::Metropolis, curr::T, logprob::Function) where T
   return _update(rng, met, curr, logprob)[1]
 end
-function update(met::Metropolis, curr::Real, logprob::Function)
+function update(met::Metropolis, curr::T, logprob::Function) where T
   return update(Random.GLOBAL_RNG, met, curr, logprob)
 end
 

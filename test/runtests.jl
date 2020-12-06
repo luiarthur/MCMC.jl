@@ -5,6 +5,7 @@ using BangBang
 using Distributions
 using StatsFuns
 import Random
+import LinearAlgebra
 
 @testset "MCMC" begin
   include("models/simple_model.jl")

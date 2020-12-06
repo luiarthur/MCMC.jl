@@ -1,44 +1,40 @@
-# Basic Gaussian univariate Metropolis step.
-struct UniRWM{R <: Real} <: Metropolis
-  proposal_sd::R
+# Basic zero-mean Gaussian (uni/multi-variate) Metropolis step.
+struct StaticRWM{D <: Union{Normal,MvNormal}} <: Metropolis
+  proposal::D
 end
-function _update(rng::Random.AbstractRNG, rwm::UniRWM, curr::Real, logprob::Function)
-  cand = rand(rng, Normal(curr, rwm.proposal_sd))
+function _update(rng::Random.AbstractRNG, rwm::StaticRWM, curr::T, logprob::Function) where T
+  cand = curr + rand(rng, rwm.proposal)
   log_acceptance_prob = logprob(cand) - logprob(curr)
   accept = log_acceptance_prob > -Random.randexp(rng)
   draw = accept ? cand : curr
   return (draw, accept)
 end
 
-# Univariate Random Walk Metropolis.
+
+# Static Random Walk Metropolis for Gibbs.
 """
 `name::Symbol`
 
 `stepper::Function`  function that takes `(model::Model, state::T) where T` and returns updated value for parameter with name `name`.
 
-`proposal_sd::Real`  proposal standard deviationa (Gaussian error).
+`proposal::Union{Normal,MvNormal}`  proposal distribution
 """
-struct RandomWalkMetropolis{S<:OneOrMoreSymbols, F<:Function, U<:UniRWM}
+struct _StaticRWM{S<:OneOrMoreSymbols, F<:Function, T<:StaticRWM}
   name::S
   stepper::F
-  unirwm::U
+  rwm::T
 end
-function RWM(name::Symbol, logprob::Function, proposal_sd::Real)
-  unirwm = UniRWM(proposal_sd)
-
+function RWM(name::Symbol, logprob::Function, proposal::Union{Normal, MvNormal})
+  srwm = StaticRWM(proposal)
   function stepper(model::Model, state::S) where S
     _logprob(x) = logprob(model, state, x)
-    return update(unirwm, state[name], _logprob)
+    return update(srwm, state[name], _logprob)
   end
-  return RandomWalkMetropolis(name, stepper, unirwm)
+  return _StaticRWM(name, stepper, srwm)
 end
 
-
-
-# Multivariate Random Walk Metropolis.
 
 
 # TODO
-# - [ ] Multivariate RWM (MvRWM)
-# - [ ] Adaptive RWM (ARWM)
 # - [ ] Multivariate ARWM (MvARWM)
+# - [ ] Adaptive RWM (ARWM)
