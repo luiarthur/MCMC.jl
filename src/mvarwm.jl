@@ -32,4 +32,4 @@ function _update(rng::Random.AbstractRNG, rwm::MvAdaptiveRWM, curr::AbstractVect
 
   return _update(rng, StaticRWM(MvNormal(proposal_cov)), curr, logprob)
 end
-const mvarmw = MvAdaptiveRWM
+const mvarwm = MvAdaptiveRWM

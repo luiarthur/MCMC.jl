@@ -24,16 +24,23 @@ function update(met::Metropolis, curr::T, logprob::Function) where T
   return update(Random.GLOBAL_RNG, met, curr, logprob)
 end
 
-include("temporary/dirac.jl")
+# Utilities.
+include("compat/dirac.jl")  # TODO: remove after Distributions.jl merges #1231
 include("misc.jl")
-include("metropolis.jl")
+
+# Metropolis.
+include("static_rwm.jl")
+include("rwm.jl")
+include("arwm.jl")
+include("mvarwm.jl")
+
+# General stuff.
 include("inference/gibbs.jl")
 include("mcmc.jl")
 include("metrics.jl")
 
 export mcmc, wsample_logprob, Gibbs, Conditional
-export gaussian_random_walk_metropolis, gaussian_random_walk_metropolis_base
 export dic, deviance
-export RWM, mvarmw
+export RWM, mvarwm
 
 end # module

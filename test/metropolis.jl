@@ -104,7 +104,7 @@
     d2 = Normal()
 
     spl = Gibbs(M5(K),
-                RWM(:theta, (m, s, x) -> logpdf(d1, x), mvarmw(randn(K))),
+                RWM(:theta, (m, s, x) -> logpdf(d1, x), mvarwm(randn(K))),
                 RWM(:mu, (m, s, x) -> logpdf(d2, x), Normal(0, 1)))
 
     nsamps = 50000

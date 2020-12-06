@@ -1,17 +1,4 @@
-# Basic zero-mean Gaussian (uni/multi-variate) Metropolis step.
-struct StaticRWM{D <: Union{Normal,MvNormal}} <: Metropolis
-  proposal::D
-end
-function _update(rng::Random.AbstractRNG, rwm::StaticRWM, curr::T, logprob::Function) where T
-  cand = curr + rand(rng, rwm.proposal)
-  log_acceptance_prob = logprob(cand) - logprob(curr)
-  accept = log_acceptance_prob > -Random.randexp(rng)
-  draw = accept ? cand : curr
-  return (draw, accept)
-end
-
-
-# Static Random Walk Metropolis for Gibbs.
+# Random Walk Metropolis for Gibbs.
 """
 `name::Symbol`
 
@@ -19,10 +6,10 @@ end
 
 `proposal::Union{Normal,MvNormal}`  proposal distribution
 """
-struct RWMWrapper{S<:OneOrMoreSymbols, F<:Function, T<:Metropolis}
+struct RWM{S<:OneOrMoreSymbols, F<:Function, T<:Metropolis}
   name::S
-  stepper::F
   rwm::T
+  stepper::F
 end
 
 """
@@ -52,7 +39,7 @@ function RWM(name::Symbol, logprob::Function, met::Metropolis; bijector=nothing)
     return invb(update(met, bijector(state[name]), _logprob))
   end
 
-  return RWMWrapper(name, stepper, met)
+  return RWM(name, met, stepper)
 end
 
 function RWM(name::Symbol, logprob::Function, proposal::Union{Normal, MvNormal};
@@ -61,9 +48,7 @@ function RWM(name::Symbol, logprob::Function, proposal::Union{Normal, MvNormal};
   return RWM(name, logprob, srwm, bijector=bijector)
 end
 
-
-include("metropolis_mvadaptive.jl")
-
-# TOD
-# - [ ] Multivariate ARWM (MvARWM)
-# - [ ] Adaptive RWM (ARWM)
+# TODO: Implement this.
+# function RWM(name::Tuple, logprob::Function, proposal::Union{Normal, MvNormal};
+#              bijector=nothing)
+# end
