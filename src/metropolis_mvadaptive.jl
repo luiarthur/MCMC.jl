@@ -1,4 +1,5 @@
 # Adaptive MvNormal random walk.
+# See: https://www.tandfonline.com/doi/abs/10.1198/jcgs.2009.06134
 mutable struct MvAdaptiveRWM{M <: AbstractVector{<:Real}, V <: AbstractMatrix{<:Real},
                              B <: Real} <: Metropolis
   sample_mean::M
