@@ -93,4 +93,28 @@
       @test isapprox(quantile(param, 0.975), quantile(d, .975), atol=1e-2)
     end
   end
+
+  @testset "MvAdaptiveRWM" begin
+    Random.seed!(1)
+    K = 10
+    d1 = let
+      M = randn(K, K)
+      MvNormal(randn(K), M*M')
+    end
+    d2 = Normal()
+
+    spl = Gibbs(M5(K),
+                RWM(:theta, (m, s, x) -> logpdf(d1, x), mvarmw(randn(K))),
+                RWM(:mu, (m, s, x) -> logpdf(d2, x), Normal(0, 1)))
+
+    nsamps = 50000
+    chain = mcmc(spl, nsamps, discard=10000, thin=2).chain
+    theta = getindex.(chain, :theta)
+    mu = getindex.(chain, :mu)
+
+    @test isapprox(mean(theta), mean(d1), atol=0.2)
+    @test isapprox(std(theta), sqrt.(LinearAlgebra.diag(cov(d1))), atol=0.2)
+    @test isapprox(mean(mu), mean(d2), atol=1e-2)
+    @test isapprox(std(mu), std(d2), atol=1e-2)
+  end
 end

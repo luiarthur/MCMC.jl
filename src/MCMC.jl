@@ -6,6 +6,7 @@ using ProgressBars
 using StatsFuns
 import Random
 using Bijectors
+import LinearAlgebra
 
 abstract type Model end
 abstract type InferenceAlgorithm end
@@ -33,6 +34,6 @@ include("metrics.jl")
 export mcmc, wsample_logprob, Gibbs, Conditional
 export gaussian_random_walk_metropolis, gaussian_random_walk_metropolis_base
 export dic, deviance
-export RWM
+export RWM, mvarmw
 
 end # module

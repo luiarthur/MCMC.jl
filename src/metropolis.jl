@@ -19,7 +19,7 @@ end
 
 `proposal::Union{Normal,MvNormal}`  proposal distribution
 """
-struct _RWM{S<:OneOrMoreSymbols, F<:Function, T<:StaticRWM}
+struct RWMWrapper{S<:OneOrMoreSymbols, F<:Function, T<:Metropolis}
   name::S
   stepper::F
   rwm::T
@@ -38,6 +38,8 @@ function RWM(name::Symbol, logprob::Function, met::Metropolis; bijector=nothing)
       end
     elseif met isa MvAdaptiveRWM
       bijector = Bijectors.Identity{1}()
+    else
+      error("Not implemented!")
     end
   end
   invb = inv(bijector)
@@ -50,7 +52,7 @@ function RWM(name::Symbol, logprob::Function, met::Metropolis; bijector=nothing)
     return invb(update(met, bijector(state[name]), _logprob))
   end
 
-  return _RWM(name, stepper, met)
+  return RWMWrapper(name, stepper, met)
 end
 
 function RWM(name::Symbol, logprob::Function, proposal::Union{Normal, MvNormal};
