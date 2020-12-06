@@ -1,17 +1,17 @@
 @testset "metropolis" begin
   @testset "gaussian_random_walk_metropolis" begin
-    function sample_with_metropolis(n::Integer, metropolis::Function)
+    function sample_with_metropolis(n::Integer, rwm::MCMC.Metropolis)
       x = 0.0
       xs = Float64[]
       for _ in 1:n
-        x = metropolis(x, normlogpdf, 1)
+        x = MCMC.update(rwm, x, normlogpdf)
         append!(xs, x)
       end
       return xs
     end
     
     Random.seed!(0)
-    xs = sample_with_metropolis(1_000_000, gaussian_random_walk_metropolis)
+    xs = sample_with_metropolis(1_000_000, MCMC.UniRWM(1.0))
     @test isapprox(mean(xs), 0, atol=1e-2)
     @test isapprox(std(xs), 1, atol=1e-2)
     @test isapprox(quantile(xs, 0.025), -1.96, atol=1e-2)
