@@ -8,6 +8,7 @@ jobs:
     continue-on-error: ${{ matrix.version == 'nightly' }}
     strategy:
       matrix:
+        # NOTE: '1.0', ..., '1.4' fails.
         julia-version: ['1.5', '1', 'nightly']
         julia-arch: [x86]
         os: [ubuntu-latest]
