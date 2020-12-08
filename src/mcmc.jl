@@ -19,7 +19,8 @@ end
 
 """
     mcmc(model::Model, nsamps::Int; init::Union{NamedTuple, Nothing}, nburn::Int=0,
-         thin::Int=1, exclude::Vector{Symbol}=[], callback=nothing)
+         thin::Int=1, exclude::Vector{Symbol}=[], callback=nothing,
+         return_last_state=false)
 
 ### Arguments
 
@@ -41,7 +42,8 @@ end
 """
 function mcmc(model::Union{Model,Gibbs}, nsamps::Int; init::Union{Nothing, NamedTuple}=nothing,
               nburn::Int=0, thin::Int=1, exclude::Vector{Symbol}=Symbol[],
-              callback=nothing, progress=true, kwargs...)
+              callback=nothing, progress=true, return_last_state=false,
+              kwargs...)
   # Create intial state if needed.
   init === nothing && (init = make_init_state(model))
 
@@ -86,5 +88,9 @@ function mcmc(model::Union{Model,Gibbs}, nsamps::Int; init::Union{Nothing, Named
     (i > nburn) && ((i - nburn) % thin == 0) && setindex!!(chain, sample, idx += 1)
   end
 
-  return (chain=chain, metrics=metrics)
+  if return_last_state
+    return (chain=chain, metrics=metrics, last_state=state)
+  else
+    return (chain=chain, metrics=metrics)
+  end
 end
