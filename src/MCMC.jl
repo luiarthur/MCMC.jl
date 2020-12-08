@@ -42,5 +42,6 @@ include("metrics.jl")
 export mcmc, wsample_logprob, Gibbs, Conditional
 export dic, deviance
 export RWM, mvarwm
+export quantiles
 
 end # module

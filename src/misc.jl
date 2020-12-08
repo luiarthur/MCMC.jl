@@ -26,3 +26,11 @@ end
 
 eye(T::Type, n::Integer) = Matrix{T}(LinearAlgebra.I(n))
 eye(n::Integer) = eye(Float64, n)
+
+
+# Quantiles for arbitrary array.
+function quantiles(X, q; dims, drop=false)
+  Q = mapslices(x -> quantile(x, q), X, dims=dims)
+  out = drop ? dropdims(Q, dims=dims) : Q
+  return out
+end
