@@ -1,3 +1,5 @@
+println("Test metropolis")
+
 @testset "metropolis" begin
   @testset "gaussian_random_walk_metropolis" begin
     function sample_with_metropolis(n::Integer, rwm::MCMC.Metropolis)

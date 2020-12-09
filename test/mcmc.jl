@@ -1,3 +1,5 @@
+println("Test mcmc")
+
 @testset "mcmc.jl" begin
   @testset "subsetnamedtuple" begin
     state = MCMC.make_init_state(MySimpleModel(10))

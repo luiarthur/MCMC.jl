@@ -1,4 +1,6 @@
-@testset "util" begin
+println("Test misc")
+
+@testset "misc" begin
   @testset "wsample_logprob" begin
     p = [.3, .5, .2]
     logp = log.(p)
