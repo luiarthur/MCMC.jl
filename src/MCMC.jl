@@ -25,7 +25,6 @@ function update(met::Metropolis, curr::T, logprob::Function) where T
 end
 
 # Utilities.
-include("compat/dirac.jl")  # TODO: remove after Distributions.jl merges #1231
 include("misc.jl")
 
 # Metropolis.
