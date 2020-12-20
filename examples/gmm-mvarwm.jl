@@ -1,3 +1,7 @@
+# NOTE: This is an example of how to do Mv Adaptive Metropolis for a GMM.
+# Updates are done iteratively for each set of parameters, instead of jointly
+# for all parameters.
+
 import Pkg; Pkg.activate("../")
 using MCMC
 using BangBang
