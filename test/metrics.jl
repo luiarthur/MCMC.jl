@@ -56,5 +56,6 @@ lbeta(a, b) = logabsbeta(a, b)[1]
     d1 = Normal(0, 1)
     d2 = Normal(1, 1)
     @test hellinger(d1, d2, Int(1e6)) ≈ hellinger(d2, d1, Int(1e6))  atol=0.02
+    @test hellinger(d1, d2, Int(1e6)) ≈ 0.34 atol=0.01
   end
 end

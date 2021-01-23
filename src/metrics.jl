@@ -52,8 +52,13 @@ H²(F, G) = 1 - ∫ √(f(x) ⋅ √g(x) dx
 Thus, we sample from `F`, then approximate the integral by evaluating 
 √g(x) / √f(x).
 """
-function hellinger(F::Distribution, G::Distribution, n::Integer)
+hellinger(F::Distribution, G::Distribution, n::Integer) = sqrt(hellinger2(F, G, n))
+
+"""
+Hellinger squared distance. Note that: `hellinger(F, G, n) = sqrt(hellinger2(F, G, n))`
+"""
+function hellinger2(F::Distribution, G::Distribution, n::Integer)
   samps = rand(F, n)
   log_mc_approx_integral = logmeanexp((logpdf.(G, samps) - logpdf.(F, samps)) / 2)
-  return sqrt(1 - exp(log_mc_approx_integral))
+  return 1 - exp(log_mc_approx_integral)
 end
