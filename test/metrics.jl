@@ -44,4 +44,17 @@ lbeta(a, b) = logabsbeta(a, b)[1]
 
     @test true_log_bf ≈ approx_log_bf atol=0.2
   end
+
+  @testset "logmeanexp" begin
+    Random.seed!(0)
+    x = randn(10000)
+    @test logmeanexp(x) ≈ log(mean(exp.(x)))
+  end
+
+  @testset "hellinger" begin
+    Random.seed!(0)
+    d1 = Normal(0, 1)
+    d2 = Normal(1, 1)
+    @test hellinger(d1, d2, Int(1e6)) ≈ hellinger(d2, d1, Int(1e6))  atol=0.02
+  end
 end

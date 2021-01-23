@@ -35,3 +35,25 @@ Returns: log bayes factor in favor of model2 (vs. model1).
 function log_bayes_factor(ll1::AbstractVector{<:Real}, ll2::AbstractVector{<:Real})
   return log_bayes_factor([ll1, ll2])[2]
 end
+
+
+"""
+Numerically stable computation of `log(mean(exp.(xs)))`.
+"""
+logmeanexp(xs) = logsumexp(xs) - log(length(xs))
+
+"""
+Monte Carlo (MC) approximation of Hellinger distance between two distributions
+`F` and `G`. `n` is the number of MC samples to use for the approximation.
+
+H²(F, G) = 1 - ∫ √(f(x) ⋅ √g(x) dx
+         = 1 - ∫ √g(x) / √f(x) ⋅ f(x) dx
+
+Thus, we sample from `F`, then approximate the integral by evaluating 
+√g(x) / √f(x).
+"""
+function hellinger(F::Distribution, G::Distribution, n::Integer)
+  samps = rand(F, n)
+  log_mc_approx_integral = logmeanexp((logpdf.(G, samps) - logpdf.(F, samps)) / 2)
+  return sqrt(1 - exp(log_mc_approx_integral))
+end
