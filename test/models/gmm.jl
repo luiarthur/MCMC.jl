@@ -59,7 +59,7 @@ function update_sigmasq(m::GMM, s::T) where T
   return s.sigmasq
 end
 function update_eta(m::GMM, s::T) where T
-  anew = copy(m.eta.alpha)
+  anew = copy(collect(m.eta.alpha))
   for lam in s.lambda
     anew[lam] += 1
   end
