@@ -35,7 +35,7 @@ include("mvarwm.jl")
 
 # General stuff.
 include("inference/gibbs.jl")
-include("mcmc.jl")
+include("mcmc-functions.jl")
 include("metrics.jl")
 
 export mcmc, wsample_logprob, Gibbs, Conditional
